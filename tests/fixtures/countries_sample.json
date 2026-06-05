@@ -1,0 +1,26 @@
+[
+  {
+    "name": {
+      "common": "Brazil",
+      "official": "Federative Republic of Brazil"
+    },
+    "cca2": "BR",
+    "region": "Americas",
+    "population": 212559409,
+    "flags": {
+      "png": "https://flagcdn.com/w320/br.png"
+    }
+  },
+  {
+    "name": {
+      "common": "Portugal",
+      "official": "Portuguese Republic"
+    },
+    "cca2": "PT",
+    "region": "Europe",
+    "population": 10305564,
+    "flags": {
+      "png": "https://flagcdn.com/w320/pt.png"
+    }
+  }
+]
