@@ -66,7 +66,7 @@ step "04" "docker-compose.yml (sincroniza do repo)"  \
   "04-compose.sh"
 
 step "05" "Subir stack core"  \
-  "docker compose -f '$COMPOSE_DIR/docker-compose.yml' --profile core ps 2>/dev/null | grep -q 'healthy'"  \
+  "docker inspect compose-core-airflow-webserver-1 2>/dev/null | grep -q '\"0.0.0.0:8080\"'"  \
   "05-run-stack.sh"
 
 step "07" "MinIO — buckets"  \

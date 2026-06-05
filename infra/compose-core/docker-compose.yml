@@ -161,7 +161,7 @@ services:
     volumes:
       - ../../src/agent_tools:/app
     entrypoint: ["bash", "-c"]
-    command: "pip install fastapi uvicorn --quiet && uvicorn api:app --host 0.0.0.0 --port 8000"
+    command: "pip install fastapi uvicorn --quiet --no-cache-dir && exec uvicorn api:app --host 0.0.0.0 --port 8000 --workers 1"
     ports:
       - "8000:8000"
     networks:
