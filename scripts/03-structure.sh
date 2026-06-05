@@ -1,37 +1,34 @@
 #!/bin/bash
-# 03-structure.sh — Estrutura de diretórios, copia arquivos do repo e gera .env
+# 03-structure.sh — Cria diretórios de runtime e gera .env
+#
+# NÃO copia arquivos do repo — eles já estão no lugar certo.
+# O repo É o projeto: docker-compose.yml, api.py, dbt_project.yml etc.
+# estão em suas posições finais desde o clone.
+#
+# O que este script faz:
+#   1. Cria subdiretórios não rastreados pelo git (src/core, src/llm, etc.)
+#   2. Gera infra/compose-core/.env com segredos (gitignored)
 set -euo pipefail
 
-POC_DIR="${POC_DIR:-$HOME/data-agent-poc}"
+POC_DIR="${POC_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 COMPOSE_DIR="$POC_DIR/infra/compose-core"
-REPO_DIR="${REPO_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 
-echo "==> Criando estrutura em $POC_DIR..."
-mkdir -p "$COMPOSE_DIR"
-mkdir -p "$POC_DIR"/{dags,dbt/{models/{bronze,silver,gold},tests,macros},data_contracts}
-mkdir -p "$POC_DIR"/src/{core,connectors,pdf,warehouse,agent_tools,llm}
-mkdir -p "$POC_DIR"/tests/{unit,integration,fixtures}
+echo "==> Criando diretórios de runtime (não rastreados pelo git)..."
+mkdir -p "$POC_DIR/src/core"
+mkdir -p "$POC_DIR/src/connectors"
+mkdir -p "$POC_DIR/src/pdf"
+mkdir -p "$POC_DIR/src/warehouse"
+mkdir -p "$POC_DIR/src/llm"
+mkdir -p "$POC_DIR/tests/unit"
+mkdir -p "$POC_DIR/tests/integration"
+mkdir -p "$POC_DIR/tests/fixtures"
 mkdir -p "$POC_DIR/docs"
+echo "  ✔ Diretórios prontos."
 
-echo "==> Copiando arquivos do repositório..."
-cp "$REPO_DIR/src/agent_tools/api.py" \
-   "$POC_DIR/src/agent_tools/api.py"
-
-cp "$REPO_DIR/infra/compose-core/clickhouse-config.xml" \
-   "$COMPOSE_DIR/clickhouse-config.xml"
-
-cp "$REPO_DIR/infra/compose-core/clickhouse-users.xml" \
-   "$COMPOSE_DIR/clickhouse-users.xml"
-
-[ -f "$REPO_DIR/dbt/dbt_project.yml" ] && \
-  cp "$REPO_DIR/dbt/dbt_project.yml" "$POC_DIR/dbt/dbt_project.yml"
-
-# Copia modelos de exemplo se existirem
-for layer in bronze silver gold; do
-  src="$REPO_DIR/dbt/models/$layer"
-  dst="$POC_DIR/dbt/models/$layer"
-  [ -d "$src" ] && cp -rn "$src/." "$dst/" 2>/dev/null || true
-done
+if [ -f "$COMPOSE_DIR/.env" ]; then
+  echo "  ✔ .env já existe — mantendo segredos existentes."
+  exit 0
+fi
 
 echo "==> Gerando .env com segredos..."
 FERNET_KEY=$(python3 -c "import base64,os; print(base64.urlsafe_b64encode(os.urandom(32)).decode())")
@@ -40,7 +37,7 @@ API_SECRET=$(python3 -c "import secrets; print(secrets.token_hex(32))")
 
 cat > "$COMPOSE_DIR/.env" <<ENVEOF
 # POC Data Agent VPS — $(date '+%Y-%m-%d')
-# Gerado automaticamente. NÃO commitir este arquivo.
+# Gerado por setup.sh. NÃO commitar — arquivo está em .gitignore.
 
 POSTGRES_USER=airflow
 POSTGRES_PASSWORD=poc2024pg
@@ -66,5 +63,5 @@ QDRANT_API_KEY=poc2024qdrant
 OLLAMA_MODEL=qwen2.5:1.5b
 ENVEOF
 
-echo "  .env criado em $COMPOSE_DIR/.env"
-echo "✔ 03 — Estrutura criada."
+echo "  ✔ .env criado em $COMPOSE_DIR/.env"
+echo "✔ 03 — Estrutura pronta."

@@ -11,8 +11,10 @@ set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_DIR="$REPO_DIR/scripts"
-export POC_DIR="${POC_DIR:-$HOME/data-agent-poc}"
-export COMPOSE_DIR="$POC_DIR/infra/compose-core"
+# O repo É o projeto — não existe diretório separado de deploy.
+# Clone para onde quiser: git clone URL ~/data-agent-poc && bash setup.sh
+export POC_DIR="$REPO_DIR"
+export COMPOSE_DIR="$REPO_DIR/infra/compose-core"
 export REPO_DIR
 
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; CYAN='\033[0;36m'; NC='\033[0m'
@@ -61,8 +63,8 @@ step "03" "Estrutura do projeto e .env"  \
   "[ -f '$COMPOSE_DIR/.env' ]"  \
   "03-structure.sh"
 
-step "04" "docker-compose.yml (sincroniza do repo)"  \
-  "diff -q '$COMPOSE_DIR/docker-compose.yml' '$REPO_DIR/infra/compose-core/docker-compose.yml' > /dev/null 2>&1"  \
+step "04" "docker-compose.yml (valida YAML)"  \
+  "false"  \
   "04-compose.sh"
 
 step "05" "Subir stack core"  \

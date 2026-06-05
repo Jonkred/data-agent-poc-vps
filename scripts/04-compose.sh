@@ -1,18 +1,15 @@
 #!/bin/bash
-# 04-compose.sh — Gera docker-compose.yml na VPS
+# 04-compose.sh — Valida docker-compose.yml
+#
+# O docker-compose.yml já está no repo em infra/compose-core/.
+# Não há nada a copiar — só valida o YAML.
 set -euo pipefail
 
-POC_DIR="${POC_DIR:-$HOME/data-agent-poc}"
+POC_DIR="${POC_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 COMPOSE_DIR="$POC_DIR/infra/compose-core"
-REPO_DIR="${REPO_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-
-echo "==> Copiando docker-compose.yml do repositório..."
-cp "$REPO_DIR/infra/compose-core/docker-compose.yml" \
-   "$COMPOSE_DIR/docker-compose.yml"
-
-echo "==> Validando YAML..."
 cd "$COMPOSE_DIR"
+
+echo "==> Validando docker-compose.yml..."
 docker compose --profile core config --quiet
 echo "  ✔ YAML válido."
-
 echo "✔ 04 — docker-compose.yml pronto."

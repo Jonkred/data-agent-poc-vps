@@ -24,15 +24,27 @@ Setup completo de um ambiente de engenharia de dados numa VPS Ubuntu, orquestrad
 ## Instalação
 
 ```bash
-# 1. Clone o repositório na VPS
-git clone https://github.com/SEU_USER/data-agent-poc-vps.git
-cd data-agent-poc-vps
+# 1. Clone diretamente para o diretório do projeto
+git clone https://github.com/SEU_USER/data-agent-poc-vps.git ~/data-agent-poc
+cd ~/data-agent-poc
 
-# 2. Execute o setup (idempotente — pode ser reexecutado)
+# 2. Execute o setup completo (idempotente)
 bash setup.sh
 ```
 
+> O repositório **é** o projeto. Não há diretório separado de deploy.
+> Todos os arquivos (docker-compose.yml, api.py, dbt_project.yml) são usados
+> diretamente do clone — sem cópias manuais.
+
 O orquestrador verifica cada etapa antes de executar. Se uma etapa já estiver concluída, pula para a próxima.
+
+## Atualização após mudanças no repo
+
+```bash
+cd ~/data-agent-poc
+git pull
+bash setup.sh   # reaaplica apenas o que mudou
+```
 
 ## Estrutura
 
