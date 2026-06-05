@@ -17,6 +17,11 @@ x-airflow-common: &airflow-common
     AIRFLOW__WEBSERVER__SECRET_KEY: "${AIRFLOW__WEBSERVER__SECRET_KEY}"
     AIRFLOW__CORE__LOAD_EXAMPLES: "False"
     AIRFLOW__LOGGING__LOGGING_LEVEL: WARNING
+    # Permite DAGs importarem módulos de src/ (ex: from connectors.http import ...)
+    PYTHONPATH: /opt/airflow/src
+    # Re-scan a cada 30s em dev (padrão é 300s)
+    AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: "30"
+    AIRFLOW__SCHEDULER__MIN_FILE_PROCESS_INTERVAL: "5"
   volumes:
     - ../../dags:/opt/airflow/dags
     - ../../src:/opt/airflow/src
