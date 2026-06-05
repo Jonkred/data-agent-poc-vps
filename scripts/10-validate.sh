@@ -58,12 +58,14 @@ check "MinIO bucket 'bronze'" \
     -c 'mc alias set l http://minio:9000 minioadmin minio2024 --quiet && mc ls l' \
     2>/dev/null | grep -q bronze"
 check "ClickHouse tabela ingestion_control" \
-  "curl -sf '$CH/' -u '$AUTH' \
-    --data-binary 'EXISTS TABLE poc_dw.ingestion_control FORMAT TabSeparated' \
+  "docker compose -f '$COMPOSE_DIR/docker-compose.yml' exec -T clickhouse \
+    clickhouse-client --user=poc_user --password=click2024 \
+    --query 'EXISTS TABLE poc_dw.ingestion_control FORMAT TabSeparated' \
     2>/dev/null | grep -q '^1'"
 check "ClickHouse tabela ingestion_runs" \
-  "curl -sf '$CH/' -u '$AUTH' \
-    --data-binary 'EXISTS TABLE poc_dw.ingestion_runs FORMAT TabSeparated' \
+  "docker compose -f '$COMPOSE_DIR/docker-compose.yml' exec -T clickhouse \
+    clickhouse-client --user=poc_user --password=click2024 \
+    --query 'EXISTS TABLE poc_dw.ingestion_runs FORMAT TabSeparated' \
     2>/dev/null | grep -q '^1'"
 check "dbt debug OK" \
   "source '$POC_DIR/.venv/dbt/bin/activate' 2>/dev/null && \

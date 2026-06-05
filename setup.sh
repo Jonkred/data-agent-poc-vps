@@ -76,8 +76,9 @@ step "07" "MinIO — buckets"  \
   "07-minio-buckets.sh"
 
 step "08" "ClickHouse — tabelas de controle"  \
-  "curl -sf 'http://localhost:8123/' -u 'poc_user:click2024' \
-    --data-binary 'EXISTS TABLE poc_dw.ingestion_control FORMAT TabSeparated' \
+  "docker compose -f '$COMPOSE_DIR/docker-compose.yml' exec -T clickhouse \
+    clickhouse-client --user=poc_user --password=click2024 \
+    --query 'EXISTS TABLE poc_dw.ingestion_control FORMAT TabSeparated' \
     2>/dev/null | grep -q '^1'"  \
   "08-clickhouse-init.sh"
 
