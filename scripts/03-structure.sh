@@ -20,6 +20,9 @@ cp "$REPO_DIR/src/agent_tools/api.py" \
 cp "$REPO_DIR/infra/compose-core/clickhouse-config.xml" \
    "$COMPOSE_DIR/clickhouse-config.xml"
 
+cp "$REPO_DIR/infra/compose-core/clickhouse-users.xml" \
+   "$COMPOSE_DIR/clickhouse-users.xml"
+
 [ -f "$REPO_DIR/dbt/dbt_project.yml" ] && \
   cp "$REPO_DIR/dbt/dbt_project.yml" "$POC_DIR/dbt/dbt_project.yml"
 

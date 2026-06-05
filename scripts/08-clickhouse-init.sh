@@ -1,6 +1,9 @@
 #!/bin/bash
 # 08-clickhouse-init.sh — Cria banco poc_dw e tabelas de controle
-# Usa docker compose exec (não HTTP) para evitar timeout no startup
+# Estratégia:
+#   1. Aguarda ClickHouse via clickhouse-client (poc_user definido em users.d/)
+#   2. Se não responder em 90s, remove volume antigo e reinicia (auto-reparo)
+#   3. Cria banco e tabelas via exec
 set -euo pipefail
 
 POC_DIR="${POC_DIR:-$HOME/data-agent-poc}"
@@ -10,18 +13,45 @@ cd "$COMPOSE_DIR"
 CH_EXEC="docker compose exec -T clickhouse clickhouse-client"
 CH_USER="--user=poc_user --password=click2024"
 
-echo "==> Aguardando ClickHouse via client (max 180s)..."
-SECONDS=0
-until $CH_EXEC --query "SELECT 1" > /dev/null 2>&1; do
-  if [ "$SECONDS" -gt 180 ]; then
-    echo ""
-    echo "  ERRO: ClickHouse não respondeu em 180s. Logs:"
-    docker logs compose-core-clickhouse-1 2>&1 | tail -30
-    exit 1
-  fi
-  printf "."; sleep 3
-done
-echo " ✔"
+wait_clickhouse() {
+  local elapsed=0
+  local restarted=false
+
+  until $CH_EXEC $CH_USER --query "SELECT 1" > /dev/null 2>&1; do
+
+    # Após 90s sem resposta: remove volume corrompido e reinicia
+    if [ "$elapsed" -ge 90 ] && [ "$restarted" = "false" ]; then
+      echo ""
+      echo "  ClickHouse não respondeu em 90s."
+      echo "  Causa provável: volume com dados de setup anterior bloqueou inicialização."
+      echo "  Removendo volume e reiniciando (dados serão recriados)..."
+      docker compose stop clickhouse  2>/dev/null || true
+      docker compose rm -f clickhouse 2>/dev/null || true
+      docker volume rm compose-core_clickhouse-data 2>/dev/null || true
+      docker compose up -d clickhouse
+      restarted=true
+      elapsed=0
+      sleep 5
+      printf "  Aguardando reinício"
+      continue
+    fi
+
+    if [ "$elapsed" -ge 180 ]; then
+      echo ""
+      echo "  ERRO: ClickHouse não respondeu em 180s."
+      echo "  Logs do container:"
+      docker logs compose-core-clickhouse-1 2>&1 | tail -40
+      exit 1
+    fi
+
+    printf "."; sleep 3
+    elapsed=$((elapsed + 3))
+  done
+  echo " ✔"
+}
+
+echo "==> Aguardando ClickHouse ficar pronto..."
+wait_clickhouse
 
 run_sql() {
   $CH_EXEC $CH_USER --query "$1" > /dev/null
