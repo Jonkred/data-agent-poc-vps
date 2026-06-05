@@ -61,8 +61,8 @@ step "03" "Estrutura do projeto e .env"  \
   "[ -f '$COMPOSE_DIR/.env' ]"  \
   "03-structure.sh"
 
-step "04" "docker-compose.yml"  \
-  "[ -f '$COMPOSE_DIR/docker-compose.yml' ]"  \
+step "04" "docker-compose.yml (sincroniza do repo)"  \
+  "diff -q '$COMPOSE_DIR/docker-compose.yml' '$REPO_DIR/infra/compose-core/docker-compose.yml' > /dev/null 2>&1"  \
   "04-compose.sh"
 
 step "05" "Subir stack core"  \
