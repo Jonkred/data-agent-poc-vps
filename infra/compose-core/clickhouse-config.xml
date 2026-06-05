@@ -1,0 +1,7 @@
+<clickhouse>
+  <!-- Limita o servidor a 25% da RAM total (adequado para VPS de 12 GB) -->
+  <max_server_memory_usage_to_ram_ratio>0.25</max_server_memory_usage_to_ram_ratio>
+  <!-- max_memory_usage é configuração de query, não de servidor.
+       Configurar aqui causaria falha de inicialização no CH 24.x -->
+  <max_thread_pool_size>50</max_thread_pool_size>
+</clickhouse>

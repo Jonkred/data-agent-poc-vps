@@ -1,0 +1,29 @@
+# Segredos
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# dbt
+target/
+dbt_packages/
+logs/
+.dbt/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Docker
+*.log
